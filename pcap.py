@@ -7,7 +7,6 @@ This script parses packets.
 import argparse
 from collections import namedtuple
 import struct
-import sys
 
 pcap_file_header_fields = [
     "magic_number",
@@ -51,6 +50,8 @@ ethernet_header_length = 14
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="parse a captured pcap file")
     parser.add_argument("path", help="path to file to be parsed")
+    parser.add_argument('-o', '--output',
+                        help='write to given destination file')
     args = parser.parse_args()
 
     with open(args.path, "rb") as file:
@@ -116,6 +117,8 @@ if __name__ == "__main__":
 
         http_payload = b''.join(d for _, d in sorted(data.items()))
         http_header, http_payload = http_payload.split(b'\r\n\r\n', 1)
-        # print(b'\n'.join(http_header.split(b'\r\n')).decode('utf-8'))
 
-        sys.stdout.buffer.write(http_payload)
+
+        with open(args.output, 'wb') as file:
+            file.write(http_payload)
+            print('wrote to file', args.output)
